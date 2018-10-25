@@ -6,7 +6,7 @@ import (
 	"../types"
 )
 
-func createPoints(n int) []*types.LatLng {
+func CreatePoints(n int) []*types.LatLng {
 	res := make([]*types.LatLng, 0)
 	for i := 0; i < n; i++ {
 		res = append(res, &types.LatLng{
