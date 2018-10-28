@@ -32,14 +32,9 @@ func (from *LatLng) Distance(to *LatLng) float64 {
 }
 
 func (p *LatLng) Angle(center *LatLng) float64 {
-	//	degrees := math.Acos(((p.Lat - center.Lat) + (p.Lng - center.Lng)) / (math.Sqrt(math.Pow((p.Lat-center.Lat), 2)) + math.Pow((p.Lng-center.Lng), 2)))
-
-	x := (p.Lng - center.Lng)
-	degrees := math.Asin(x / math.Sqrt(math.Pow((p.Lat-center.Lat), 2)+math.Pow((p.Lng-center.Lng), 2)))
-	/*
-		if degrees > 180 {
-			degrees = 360 + degrees
-		}
-	*/
-	return degrees * math.Pi / 180
+	rads := math.Atan2(p.Lng-center.Lng, p.Lat-center.Lat)
+	if rads < 0 {
+		rads += 2 * math.Pi
+	}
+	return rads
 }
