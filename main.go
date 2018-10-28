@@ -8,7 +8,6 @@ import (
 	"./generator"
 	"./types"
 	"github.com/shinomontaz/ga"
-	//	"github.com/shinomontaz/ga"
 )
 
 func main() {
@@ -27,14 +26,16 @@ func main() {
 
 	// сортировка заказов по полярному углу
 	sort.Slice(orders, func(i, j int) bool {
-		return orders[i].Coords.Angle(&wh) < orders[j].Coords.Angle(&wh)
+		return orders[i].Coords.Angle(&wh) > orders[j].Coords.Angle(&wh)
 	})
 
 	fmt.Println(orders)
 
 	for _, ord := range orders {
-		fmt.Println("angle for order", ord.Coords.Angle(&wh), " - ", *ord.Coords)
+		fmt.Println("angle for order", ord.ID, ord.Coords.Angle(&wh), " - ", *ord.Coords)
 	}
+
+	drawOrders("result.png", orders, &wh)
 
 	panic("!")
 
