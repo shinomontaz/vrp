@@ -5,9 +5,9 @@ import (
 	"math/rand"
 	"sort"
 
-	"./generator"
-	"./types"
 	"github.com/shinomontaz/ga"
+	"github.com/shinomontaz/vrp/generator"
+	"github.com/shinomontaz/vrp/types"
 )
 
 func main() {
@@ -28,20 +28,15 @@ func main() {
 	sort.Slice(orders, func(i, j int) bool {
 		return orders[i].Coords.Angle(&wh) > orders[j].Coords.Angle(&wh)
 	})
+	// for _, ord := range orders {
+	// 	fmt.Println("angle for order", ord.ID, ord.Coords.Angle(&wh), " - ", *ord.Coords)
+	// }
 
-	fmt.Println(orders)
-
-	for _, ord := range orders {
-		fmt.Println("angle for order", ord.ID, ord.Coords.Angle(&wh), " - ", *ord.Coords)
-	}
-
-	drawOrders("result.png", orders, &wh)
-
-	panic("!")
+	//	drawOrders("result.png", orders, &wh)
 
 	Ifactory := &ScheduleFactory{
 		fleet:  fleet,
-		orders: orders,
+		orders: orders, // уже отсортированные
 	}
 
 	var ga = ga.Ga{
@@ -67,7 +62,11 @@ func main() {
 
 }
 
-type RouteSet map[*types.Order]*types.Courier
+type RouteSet struct {
+	List  map[int]*Route
+	Code  string
+	Code2 []int
+}
 
 func (rs *RouteSet) Clone() ga.Individual {
 	return rs
@@ -98,14 +97,31 @@ type ScheduleFactory struct {
 }
 
 func (sf *ScheduleFactory) Create() ga.Individual {
-	rs := make(map[*types.Order]*types.Courier, len(sf.orders))
+	rs := RouteSet{List: make(map[int]*Route, len(sf.fleet)), Code2: make([]int, 0, len(sf.orders))}
 
-	for _, order := range sf.orders {
-		randFleet := rand.Intn(len(sf.fleet))
-		rs[order] = sf.fleet[randFleet]
+	currCourier := 0
+	start := rand.Intn(len(sf.orders))
+	rs.List[currCourier] = &Route{Courier: currCourier, List: make([]*types.Order, 10)}
+	for i := start; i < len(sf.orders)+start; i++ {
+		j := i % len(sf.orders)
+		order := sf.orders[j]
+		if !rs.List[currCourier].IsValid() {
+			currCourier++
+			rs.List[currCourier] = &Route{Courier: currCourier, List: make([]*types.Order, 10)}
+		}
+		rs.List[currCourier].List = append(rs.List[currCourier].List, order)
 	}
 
-	res := RouteSet(rs)
+	fmt.Println(rs)
+	panic("!")
+	return &rs
+}
 
-	return &res
+type Route struct {
+	Courier int
+	List    []*types.Order
+}
+
+func (r *Route) IsValid() bool {
+	return false
 }

@@ -8,7 +8,7 @@ import (
 	"image/png"
 	"os"
 
-	"./types"
+	"github.com/shinomontaz/vrp/types"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/basicfont"
 	"golang.org/x/image/math/fixed"

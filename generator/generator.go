@@ -3,7 +3,7 @@ package generator
 import (
 	"math/rand"
 
-	"../types"
+	"github.com/shinomontaz/vrp/types"
 )
 
 func CreatePoints(n int) []*types.LatLng {
