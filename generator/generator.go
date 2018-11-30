@@ -37,7 +37,7 @@ func CreateFleet(n int) []*types.Courier {
 	for i := 0; i < n; i++ {
 		res = append(res, &types.Courier{
 			ID:     i,
-			Weight: 10 * float64(rand.Intn(100)),
+			Weight: 10.0 * float64(rand.Intn(100)),
 		})
 	}
 	return res
