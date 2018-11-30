@@ -36,9 +36,10 @@ func main() {
 	//	drawOrders("result.png", orders, &wh)
 
 	Ifactory := &ScheduleFactory{
-		fleet:     fleet,
-		orders:    orders, // уже отсортированные
-		estimator: &Estimator{},
+		fleet:      fleet,
+		orders:     orders, // уже отсортированные
+		estimator:  &Estimator{},
+		wareheouse: &wh,
 	}
 
 	var ga = ga.Ga{
@@ -65,9 +66,12 @@ func main() {
 }
 
 type RouteSet struct {
-	List  map[int]*Route
-	Code  string
-	Code2 []int
+	List       map[int]*Route
+	Wareheouse *types.LatLng
+	Code       string
+	Code2      []int
+	fleet      []*types.Courier
+	orders     []*types.Order
 }
 
 func (rs *RouteSet) Clone() ga.Individual {
@@ -75,6 +79,8 @@ func (rs *RouteSet) Clone() ga.Individual {
 }
 
 func (rs *RouteSet) Crossover(parent ga.Individual) ga.Individual {
+	// перенумеровать курьеров!
+	// вычсислить
 	return rs
 }
 
@@ -104,23 +110,24 @@ func (rs *RouteSet) Mutate() ga.Individual {
 }
 
 type ScheduleFactory struct {
-	fleet     []*types.Courier
-	orders    []*types.Order
-	estimator *Estimator
+	fleet      []*types.Courier
+	orders     []*types.Order
+	wareheouse *types.LatLng
+	estimator  *Estimator
 }
 
 func (sf *ScheduleFactory) Create() ga.Individual {
-	rs := RouteSet{List: make(map[int]*Route, len(sf.fleet)), Code2: make([]int, 0, len(sf.orders))}
+	rs := RouteSet{List: make(map[int]*Route, len(sf.fleet)), Code2: make([]int, 0, len(sf.orders)), Wareheouse: sf.wareheouse}
 
 	currCourier := 0
 	start := rand.Intn(len(sf.orders))
-	rs.List[currCourier] = &Route{Courier: sf.fleet[currCourier], List: make([]*types.Order, 0, 10), estimator: sf.estimator}
+	rs.List[currCourier] = &Route{Courier: sf.fleet[currCourier], List: make([]*types.Order, 0, 10), estimator: sf.estimator, Wareheouse: sf.wareheouse}
 	for i := start; i < len(sf.orders)+start; i++ {
 		j := i % len(sf.orders)
 		order := sf.orders[j]
 		if !rs.List[currCourier].IsValid() {
 			currCourier++
-			rs.List[currCourier] = &Route{Courier: sf.fleet[currCourier], List: make([]*types.Order, 0, 10), estimator: sf.estimator}
+			rs.List[currCourier] = &Route{Courier: sf.fleet[currCourier], List: make([]*types.Order, 0, 10), estimator: sf.estimator, Wareheouse: sf.wareheouse}
 		}
 		rs.List[currCourier].List = append(rs.List[currCourier].List, order)
 		rs.Code2 = append(rs.Code2, currCourier)
@@ -135,9 +142,10 @@ func (sf *ScheduleFactory) Create() ga.Individual {
 }
 
 type Route struct {
-	Courier   *types.Courier
-	List      []*types.Order
-	estimator *Estimator
+	Courier    *types.Courier
+	List       []*types.Order
+	Wareheouse *types.LatLng
+	estimator  *Estimator
 }
 
 func (r *Route) IsValid() bool {
@@ -185,8 +193,11 @@ func (rs *RouteSet) decodeCode() []*Route {
 
 func (r *Route) SolveTsp() {
 	currCost := r.estimator.Cost(r)
-	for i := 1; i < len(r.List); i++ { // keep first item in place and do not swap it with any
-		for j := 1; j < len(r.List); j++ {
+	for i := 0; i < len(r.List); i++ { // keep first item in place and do not swap it with any
+		for j := 0; j < len(r.List); j++ {
+			if i == j {
+				continue
+			}
 			r.List[i], r.List[j] = r.List[j], r.List[i]
 			newCost := r.estimator.Cost(r)
 			if newCost < currCost {
