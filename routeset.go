@@ -103,3 +103,36 @@ func (rs *RouteSet) decodeCode() []*Route {
 	}
 }
 */
+
+func (rs *RouteSet) renumber() {
+
+	listCenters := make(map[int]*types.LatLng, len(rs.List))
+
+	for idx, route := range rs.List {
+		listCenters[idx] = &types.LatLng{}
+		for _, order := range route.List {
+			listCenters[idx].Lat += order.Coords.Lat
+			listCenters[idx].Lng += order.Coords.Lng
+		}
+
+		listCenters[idx].Lat /= float64(len(route.List))
+		listCenters[idx].Lng /= float64(len(route.List))
+	}
+
+	listCentersKeys := make([]int, 0, len(rs.List))
+	for idx := range listCenters {
+		listCentersKeys = append(listCentersKeys, idx)
+	}
+
+	sort.Slice(listCentersKeys, func(i, j int) bool {
+		return listCenters[i].Angle(rs.Wareheouse) > listCenters[j].Angle(rs.Wareheouse)
+	})
+
+	// новый порядок
+	currCourier := 0
+	for _, idx := range listCentersKeys {
+		rs.List[idx].Courier = rs.fleet[currCourier]
+
+		currCourier++
+	}
+}
