@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/rand"
 	"sort"
 
 	"github.com/shinomontaz/ga"
@@ -29,37 +30,32 @@ func (rs *RouteSet) Crossover(parent ga.Individual) ga.Individual {
 	// после полного вычисления всех углов пройтись по углам в порядке увеличения
 	// и присвоить каждой новому маршруту по порядку из курьеров
 
-	listCenters := make(map[int]*types.LatLng, len(rs.List))
+	rs.renumber()
+	parent.(*RouteSet).renumber()
 
-	for idx, route := range rs.List {
-		listCenters[idx] = &types.LatLng{}
-		for _, order := range route.List {
-			listCenters[idx].Lat += order.Coords.Lat
-			listCenters[idx].Lng += order.Coords.Lng
+	// now crossover!
+
+	point1 := rand.Intn(len(rs.orders))
+	point2 := point1 + rand.Intn(len(rs.orders)-point1)
+
+	child := RouteSet{
+		Wareheouse: rs.Wareheouse,
+		orders:     rs.orders,
+		fleet:      rs.fleet,
+		Code2:      make([]int, len(rs.orders)),
+	}
+
+	for i := 0; i < len(rs.orders); i++ {
+		if i < point1 || i >= point2 {
+			child.Code2 = append(child.Code2, rs.Code2[i])
+		} else {
+			child.Code2 = append(child.Code2, parent.(*RouteSet).Code2[i])
 		}
-
-		listCenters[idx].Lat /= float64(len(route.List))
-		listCenters[idx].Lng /= float64(len(route.List))
 	}
 
-	listCentersKeys := make([]int, 0, len(rs.List))
-	for idx := range listCenters {
-		listCentersKeys = append(listCentersKeys, idx)
-	}
+	// encode Code2 into List!
 
-	sort.Slice(listCentersKeys, func(i, j int) bool {
-		return listCenters[i].Angle(rs.Wareheouse) > listCenters[j].Angle(rs.Wareheouse)
-	})
-
-	// новый порядок
-	currCourier := 0
-	for _, idx := range listCentersKeys {
-		rs.List[idx].Courier = rs.fleet[currCourier]
-
-		currCourier++
-	}
-
-	return rs
+	return &child
 }
 
 func (rs *RouteSet) Educate() {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"sort"
 	"strconv"
@@ -58,6 +59,9 @@ func main() {
 			bestEver = currBest
 			bestFitness = bestEver.Fitness()
 		}
+
+		fmt.Println(bestFitness)
+
 		ga.Evolve()
 	}
 
