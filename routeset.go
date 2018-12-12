@@ -43,6 +43,10 @@ func (rs *RouteSet) Crossover(parent ga.Individual) ga.Individual {
 		orders:     rs.orders,
 		fleet:      rs.fleet,
 		Code2:      make([]int, len(rs.orders)),
+		List:       make(map[int]*Route, len(rs.fleet)),
+	}
+	for carIdx, courier := range child.fleet {
+		child.List[carIdx] = &Route{estimator: rs.List[1].estimator, Wareheouse: rs.Wareheouse, Courier: courier}
 	}
 
 	for i := 0; i < len(rs.orders); i++ {
@@ -54,6 +58,9 @@ func (rs *RouteSet) Crossover(parent ga.Individual) ga.Individual {
 	}
 
 	// encode Code2 into List!
+	for ordIdx, carIdx := range child.Code2 {
+		child.List[carIdx].List = append(child.List[carIdx].List, child.orders[ordIdx])
+	}
 
 	return &child
 }
@@ -131,4 +138,5 @@ func (rs *RouteSet) renumber() {
 
 		currCourier++
 	}
+	// TODO: renumber Code2 also! VITAL!
 }
