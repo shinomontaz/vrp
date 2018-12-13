@@ -135,8 +135,9 @@ func (rs *RouteSet) renumber() {
 	currCourier := 0
 	for _, idx := range listCentersKeys {
 		rs.List[idx].Courier = rs.fleet[currCourier]
-
+		for _, order := range rs.List[idx].List { // renumber Code2 also! VITAL!
+			rs.Code2[order.ID] = currCourier
+		}
 		currCourier++
 	}
-	// TODO: renumber Code2 also! VITAL!
 }
