@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"sort"
 
-	"github.com/shinomontaz/ga"
+	"./ega"
 	"github.com/shinomontaz/vrp/types"
 )
 
@@ -15,13 +15,15 @@ type RouteSet struct {
 	Code2      []int
 	fleet      []*types.Courier
 	orders     []*types.Order
+	fitness    float64
+	unfitness  float64
 }
 
-func (rs *RouteSet) Clone() ga.Individual {
+func (rs *RouteSet) Clone() ega.Individual {
 	return rs
 }
 
-func (rs *RouteSet) Crossover(parent ga.Individual) ga.Individual {
+func (rs *RouteSet) Crossover(parent ega.Individual) ega.Individual {
 	// перенумеровать курьеров!
 	// вычсислить
 
@@ -42,7 +44,7 @@ func (rs *RouteSet) Crossover(parent ga.Individual) ga.Individual {
 		Wareheouse: rs.Wareheouse,
 		orders:     rs.orders,
 		fleet:      rs.fleet,
-		Code2:      make([]int, len(rs.orders)),
+		Code2:      make([]int, 0, len(rs.orders)),
 		List:       make(map[int]*Route, len(rs.fleet)),
 	}
 	for carIdx, courier := range child.fleet {
@@ -69,24 +71,28 @@ func (rs *RouteSet) Educate() {
 }
 
 func (rs *RouteSet) Fitness() float64 {
-	fitness := 0.0
+	if rs.fitness != 0 {
+		return rs.fitness
+	}
 	for _, route := range rs.List {
-		fitness += route.Cost()
+		rs.fitness += route.Cost()
 	}
 
-	return fitness
+	return rs.fitness
 }
 
-func (rs *RouteSet) UnFitness() float64 {
-	unfitness := 0.0
+func (rs *RouteSet) Unfitness() float64 {
+	if rs.unfitness != 0 {
+		return rs.fitness
+	}
 	for _, route := range rs.List {
-		unfitness += route.Violation()
+		rs.unfitness += route.Violation()
 	}
 
-	return unfitness
+	return rs.unfitness
 }
 
-func (rs *RouteSet) Mutate() ga.Individual {
+func (rs *RouteSet) Mutate() ega.Individual {
 	return rs
 }
 

@@ -6,7 +6,9 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/shinomontaz/ga"
+	//	"github.com/shinomontaz/vrp/ega"
+	"./ega"
+
 	"github.com/shinomontaz/vrp/generator"
 	"github.com/shinomontaz/vrp/types"
 )
@@ -41,10 +43,9 @@ func main() {
 		warehouse: &wh,
 	}
 
-	var ga = ga.Ga{
+	var ga = ega.Ega{
 		NewIndividual:  Ifactory.Create,
 		PopSize:        50,
-		KeepRate:       0,
 		TournamentSize: 2,
 	}
 
@@ -74,8 +75,8 @@ type ScheduleFactory struct {
 	estimator *Estimator
 }
 
-func (sf *ScheduleFactory) Create() ga.Individual {
-	rs := RouteSet{List: make(map[int]*Route, len(sf.fleet)), Code2: make([]int, 0, len(sf.orders)), Wareheouse: sf.warehouse, fleet: sf.fleet}
+func (sf *ScheduleFactory) Create() ega.Individual {
+	rs := RouteSet{List: make(map[int]*Route, len(sf.fleet)), Code2: make([]int, 0, len(sf.orders)), Wareheouse: sf.warehouse, fleet: sf.fleet, orders: sf.orders}
 	currCourier := 0
 	start := rand.Intn(len(sf.orders))
 	rs.List[currCourier] = &Route{Courier: sf.fleet[currCourier], List: make([]*types.Order, 0, 10), estimator: sf.estimator, Wareheouse: sf.warehouse}
