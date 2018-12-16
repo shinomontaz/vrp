@@ -51,7 +51,7 @@ func main() {
 
 	ga.Initialize()
 
-	bestEver := ga.Population[0].Clone()
+	bestEver := ga.Record()
 	bestFitness := bestEver.Fitness()
 
 	for i := 0; i < 10000; i++ {
