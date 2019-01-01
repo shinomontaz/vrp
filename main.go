@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"sort"
-	"strconv"
+	"time"
 
 	//	"github.com/shinomontaz/vrp/ega"
 	"./ega"
@@ -19,8 +19,23 @@ func main() {
 	// Особь: Начинаем набирать машины в порядке отсортированых точек. Последнюю точку включаем или не включаем
 	// Перед вычислением фитнеса - 2-opt
 
+	rand.Seed(time.Now().UTC().UnixNano())
+
 	orders := generator.CreateOrders(20)
-	fleet := generator.CreateFleet(10)
+
+	totalOrdersCapacity := 0.0
+	for _, ord := range orders {
+		totalOrdersCapacity += float64(ord.Weight)
+	}
+
+	numFleet := 3
+	carCap := totalOrdersCapacity / float64(numFleet)
+
+	fleet := generator.CreateFleet(numFleet, carCap)
+
+	for _, courier := range fleet {
+		fmt.Println(courier.ID, courier.Weight)
+	}
 	wh := types.LatLng{
 		Lat: 50,
 		Lng: 50,
@@ -56,7 +71,7 @@ func main() {
 
 	for i := 0; i < 10000; i++ {
 		currBest := ga.Record()
-		if bestFitness < currBest.Fitness() {
+		if bestFitness > currBest.Fitness() {
 			bestEver = currBest
 			bestFitness = bestEver.Fitness()
 		}
@@ -76,7 +91,7 @@ type ScheduleFactory struct {
 }
 
 func (sf *ScheduleFactory) Create() ega.Individual {
-	rs := RouteSet{List: make(map[int]*Route, len(sf.fleet)), Code2: make([]int, 0, len(sf.orders)), Wareheouse: sf.warehouse, fleet: sf.fleet, orders: sf.orders}
+	rs := RouteSet{List: make(map[int]*Route, len(sf.fleet)), Code2: make([]int, len(sf.orders), len(sf.orders)), Wareheouse: sf.warehouse, fleet: sf.fleet, orders: sf.orders}
 	currCourier := 0
 	start := rand.Intn(len(sf.orders))
 	rs.List[currCourier] = &Route{Courier: sf.fleet[currCourier], List: make([]*types.Order, 0, 10), estimator: sf.estimator, Wareheouse: sf.warehouse}
@@ -88,13 +103,17 @@ func (sf *ScheduleFactory) Create() ega.Individual {
 			rs.List[currCourier] = &Route{Courier: sf.fleet[currCourier], List: make([]*types.Order, 0, 10), estimator: sf.estimator, Wareheouse: sf.warehouse}
 		}
 		rs.List[currCourier].List = append(rs.List[currCourier].List, order)
-		rs.Code2 = append(rs.Code2, currCourier)
-		rs.Code += strconv.Itoa(currCourier)
+		rs.Code2[j] = currCourier
 	}
 
-	// for _, route := range rs.List {
-	// 	fmt.Println(route.List, route.Total(), route.Courier.Weight, route.Courier.ID)
-	// }
+	fmt.Println("created!", rs.Code2)
+	/*
+		i := 0
+		for _, route := range rs.List {
+			drawOrders(fmt.Sprintf("created-%d.png", i), route.List, rs.Wareheouse)
+			i++
+		}
+	*/
 
 	return &rs
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"sort"
 
@@ -35,10 +36,26 @@ func (rs *RouteSet) Crossover(parent ega.Individual) ega.Individual {
 	rs.renumber()
 	parent.(*RouteSet).renumber()
 
+	fmt.Println("parent 1", rs.Code2, rs.Fitness(), rs.Unfitness())
+	fmt.Println("parent 2", parent.(*RouteSet).Code2, parent.Fitness(), parent.Unfitness())
+
+	i := 0
+	for _, route := range rs.List {
+		drawOrders(fmt.Sprintf("parent1-%d.png", i), route.List, rs.Wareheouse)
+		i++
+	}
+	i = 0
+	for _, route := range parent.(*RouteSet).List {
+		drawOrders(fmt.Sprintf("parent2-%d.png", i), route.List, rs.Wareheouse)
+		i++
+	}
+
 	// now crossover!
 
 	point1 := rand.Intn(len(rs.orders))
 	point2 := point1 + rand.Intn(len(rs.orders)-point1)
+
+	fmt.Println(point1, point2)
 
 	child := RouteSet{
 		Wareheouse: rs.Wareheouse,
@@ -64,13 +81,22 @@ func (rs *RouteSet) Crossover(parent ega.Individual) ega.Individual {
 		child.List[carIdx].List = append(child.List[carIdx].List, child.orders[ordIdx])
 	}
 
+	i = 0
+	for _, route := range child.List {
+		drawOrders(fmt.Sprintf("child-%d.png", i), route.List, rs.Wareheouse)
+		i++
+	}
+
+	fmt.Println("child", child.Fitness(), child.Unfitness())
+	//	panic("!")
+
 	return &child
 }
 
 func (rs *RouteSet) Educate() {
 }
 
-func (rs *RouteSet) Fitness() float64 {
+func (rs *RouteSet) Fitness() float64 { // Fitness less is better
 	if rs.fitness != 0 {
 		return rs.fitness
 	}
@@ -81,7 +107,7 @@ func (rs *RouteSet) Fitness() float64 {
 	return rs.fitness
 }
 
-func (rs *RouteSet) Unfitness() float64 {
+func (rs *RouteSet) Unfitness() float64 { // Unfitness less is better
 	if rs.unfitness != 0 {
 		return rs.fitness
 	}
