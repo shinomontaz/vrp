@@ -33,9 +33,6 @@ func main() {
 
 	fleet := generator.CreateFleet(numFleet, carCap)
 
-	for _, courier := range fleet {
-		fmt.Println(courier.ID, courier.Weight)
-	}
 	wh := types.LatLng{
 		Lat: 50,
 		Lng: 50,
@@ -106,8 +103,7 @@ func (sf *ScheduleFactory) Create() ega.Individual {
 		rs.Code2[j] = currCourier
 	}
 
-	fmt.Println("created!", rs.Code2)
-	/*
+	/*	fmt.Println("created!", rs.Code2)
 		i := 0
 		for _, route := range rs.List {
 			drawOrders(fmt.Sprintf("created-%d.png", i), route.List, rs.Wareheouse)

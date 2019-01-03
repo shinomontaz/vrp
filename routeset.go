@@ -38,17 +38,8 @@ func (rs *RouteSet) Crossover(parent ega.Individual) ega.Individual {
 
 	fmt.Println("parent 1", rs.Code2, rs.Fitness(), rs.Unfitness())
 	fmt.Println("parent 2", parent.(*RouteSet).Code2, parent.Fitness(), parent.Unfitness())
-
-	i := 0
-	for _, route := range rs.List {
-		drawOrders(fmt.Sprintf("parent1-%d.png", i), route.List, rs.Wareheouse)
-		i++
-	}
-	i = 0
-	for _, route := range parent.(*RouteSet).List {
-		drawOrders(fmt.Sprintf("parent2-%d.png", i), route.List, rs.Wareheouse)
-		i++
-	}
+	drawRouteSet("parent1.png", *rs)
+	drawRouteSet("parent2.png", *parent.(*RouteSet))
 
 	// now crossover!
 
@@ -81,15 +72,17 @@ func (rs *RouteSet) Crossover(parent ega.Individual) ega.Individual {
 		child.List[carIdx].List = append(child.List[carIdx].List, child.orders[ordIdx])
 	}
 
-	i = 0
-	for _, route := range child.List {
-		drawOrders(fmt.Sprintf("child-%d.png", i), route.List, rs.Wareheouse)
-		i++
-	}
-
+	drawRouteSet("child.png", child)
+	/*
+		i := 0
+		for _, route := range child.List {
+			drawOrders(fmt.Sprintf("child-%d.png", i), route.List, rs.Wareheouse)
+			i++
+		}
+	*/
 	fmt.Println("child", child.Fitness(), child.Unfitness())
-	//	panic("!")
 
+	panic("!")
 	return &child
 }
 
