@@ -38,8 +38,8 @@ func (rs *RouteSet) Crossover(parent ega.Individual) ega.Individual {
 
 	fmt.Println("parent 1", rs.Code2, rs.Fitness(), rs.Unfitness())
 	fmt.Println("parent 2", parent.(*RouteSet).Code2, parent.Fitness(), parent.Unfitness())
-	drawRouteSet("parent1.png", *rs)
-	drawRouteSet("parent2.png", *parent.(*RouteSet))
+	/*	drawRouteSet(fmt.Sprintf("parent1%v.png", rs.Code2), *rs)
+		drawRouteSet(fmt.Sprintf("parent2%v.png", parent.(*RouteSet).Code2), *parent.(*RouteSet))*/
 
 	// now crossover!
 
@@ -71,18 +71,11 @@ func (rs *RouteSet) Crossover(parent ega.Individual) ega.Individual {
 	for ordIdx, carIdx := range child.Code2 {
 		child.List[carIdx].List = append(child.List[carIdx].List, child.orders[ordIdx])
 	}
+	//	drawRouteSet("child.png", child)
 
-	drawRouteSet("child.png", child)
-	/*
-		i := 0
-		for _, route := range child.List {
-			drawOrders(fmt.Sprintf("child-%d.png", i), route.List, rs.Wareheouse)
-			i++
-		}
-	*/
-	fmt.Println("child", child.Fitness(), child.Unfitness())
+	fmt.Println("child", child.Code2, child.Fitness(), child.Unfitness())
 
-	panic("!")
+	//	panic("!")
 	return &child
 }
 
@@ -134,7 +127,7 @@ func (rs *RouteSet) decodeCode() []*Route {
 
 func (rs *RouteSet) renumber() {
 
-	listCenters := make(map[int]*types.LatLng, len(rs.List))
+	listCenters := make(map[int]*types.LatLng, len(rs.List)) // список центров масс маршрутов
 
 	for idx, route := range rs.List {
 		listCenters[idx] = &types.LatLng{}
@@ -157,12 +150,21 @@ func (rs *RouteSet) renumber() {
 	})
 
 	// новый порядок
-	currCourier := 0
-	for _, idx := range listCentersKeys {
-		rs.List[idx].Courier = rs.fleet[currCourier]
-		for _, order := range rs.List[idx].List { // renumber Code2 also! VITAL!
-			rs.Code2[order.ID] = currCourier
+
+	codeIndexMap := make(map[int][]int, len(rs.Code2))
+	for i, cur := range rs.Code2 {
+		codeIndexMap[cur] = append(codeIndexMap[cur], i)
+	}
+
+	for i, idx := range listCentersKeys {
+		rs.List[idx].Courier = rs.fleet[i] // это правильно, т.к. в ключах listCentersKeys лежит новый порядок, а в значениях старый
+		for _, orderIdx := range codeIndexMap[idx] {
+			rs.Code2[orderIdx] = i
 		}
-		currCourier++
+		/*
+			for _, order := range rs.List[idx].List {
+				rs.Code2[order.ID] = currCourier
+			}
+		*/
 	}
 }

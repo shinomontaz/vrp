@@ -42,7 +42,7 @@ func (g *Ega) tournamentSelection() Individual {
 	var best Individual
 	for i := 0; i < g.TournamentSize; i++ {
 		inst := g.Population[rand.Intn(len(g.Population))]
-		if best == nil || inst.Fitness() > best.Fitness() {
+		if best == nil || inst.Fitness() < best.Fitness() {
 			best = inst
 		}
 	}
@@ -107,7 +107,7 @@ func (g *Ega) Evolve() {
 
 func (g *Ega) Record() Individual {
 	sort.Slice(g.Population, func(i, j int) bool {
-		return g.Population[i].Fitness() > g.Population[j].Fitness() // it is a "less" function, so we need bigger first
+		return g.Population[i].Fitness() < g.Population[j].Fitness() // it is a "less" function, so we need bigger first
 	})
 
 	return g.Population[0]

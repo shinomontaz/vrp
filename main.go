@@ -42,11 +42,6 @@ func main() {
 	sort.Slice(orders, func(i, j int) bool {
 		return orders[i].Coords.Angle(&wh) > orders[j].Coords.Angle(&wh)
 	})
-	// for _, ord := range orders {
-	// 	fmt.Println("angle for order", ord.ID, ord.Coords.Angle(&wh), " - ", *ord.Coords)
-	// }
-
-	//	drawOrders("result.png", orders, &wh)
 
 	Ifactory := &ScheduleFactory{
 		fleet:     fleet,
@@ -66,14 +61,14 @@ func main() {
 	bestEver := ga.Record()
 	bestFitness := bestEver.Fitness()
 
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < 100; i++ {
 		currBest := ga.Record()
 		if bestFitness > currBest.Fitness() {
 			bestEver = currBest
 			bestFitness = bestEver.Fitness()
 		}
 
-		fmt.Println(bestFitness)
+		fmt.Println("bestFitness", bestFitness)
 
 		ga.Evolve()
 	}
@@ -102,8 +97,7 @@ func (sf *ScheduleFactory) Create() ega.Individual {
 		rs.List[currCourier].List = append(rs.List[currCourier].List, order)
 		rs.Code2[j] = currCourier
 	}
-
-	/*	fmt.Println("created!", rs.Code2)
+	/*
 		i := 0
 		for _, route := range rs.List {
 			drawOrders(fmt.Sprintf("created-%d.png", i), route.List, rs.Wareheouse)
