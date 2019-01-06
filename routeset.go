@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
 	"sort"
 
@@ -36,17 +35,17 @@ func (rs *RouteSet) Crossover(parent ega.Individual) ega.Individual {
 	rs.renumber()
 	parent.(*RouteSet).renumber()
 
-	fmt.Println("parent 1", rs.Code2, rs.Fitness(), rs.Unfitness())
-	fmt.Println("parent 2", parent.(*RouteSet).Code2, parent.Fitness(), parent.Unfitness())
-	/*	drawRouteSet(fmt.Sprintf("parent1%v.png", rs.Code2), *rs)
-		drawRouteSet(fmt.Sprintf("parent2%v.png", parent.(*RouteSet).Code2), *parent.(*RouteSet))*/
+	// fmt.Println("parent 1", rs.Code2, rs.Fitness(), rs.Unfitness())
+	// fmt.Println("parent 2", parent.(*RouteSet).Code2, parent.Fitness(), parent.Unfitness())
+	// drawRouteSet(fmt.Sprintf("parent1%v.png", rs.Code2), *rs)
+	// drawRouteSet(fmt.Sprintf("parent2%v.png", parent.(*RouteSet).Code2), *parent.(*RouteSet))
 
 	// now crossover!
 
 	point1 := rand.Intn(len(rs.orders))
 	point2 := point1 + rand.Intn(len(rs.orders)-point1)
 
-	fmt.Println(point1, point2)
+	//	fmt.Println(point1, point2)
 
 	child := RouteSet{
 		Wareheouse: rs.Wareheouse,
@@ -71,11 +70,11 @@ func (rs *RouteSet) Crossover(parent ega.Individual) ega.Individual {
 	for ordIdx, carIdx := range child.Code2 {
 		child.List[carIdx].List = append(child.List[carIdx].List, child.orders[ordIdx])
 	}
-	//	drawRouteSet("child.png", child)
+	// drawRouteSet("child.png", child)
 
-	fmt.Println("child", child.Code2, child.Fitness(), child.Unfitness())
+	// fmt.Println("child", child.Code2, child.Fitness(), child.Unfitness())
 
-	//	panic("!")
+	// panic("!")
 	return &child
 }
 
